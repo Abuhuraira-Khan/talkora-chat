@@ -19,7 +19,7 @@ export const SocketContextProvider = ({ children }: any) => {
 
     useEffect(() => {
         if(auth){
-            const newSocket = io("http://localhost:5000",{
+            const newSocket = io("https://talkora-chat-api.vercel.app",{
                 query: {
                     userId: myProfile?._id
                 }
