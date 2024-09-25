@@ -23,12 +23,6 @@ export const checkAuth = async (req, res, next) => {
 
         const user = await User.findOne({ email: verified.email, _id: verified.id });
         if (!user || !user.isEmailVerified) {
-            res.cookie('u_token', '', {
-                maxAge: 0,
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'None'
-            });
             return res.status(401).json({ authenticate: false, message: 'Unauthorized' });
         }
         next();
