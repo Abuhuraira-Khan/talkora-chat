@@ -14,7 +14,7 @@ interface SidebarProps {
   }
 
 // apiurl
-export const apiUrl = 'https://talkora-chat-api.vercel.app';
+export const apiUrl = 'https://talkora-chat.onrender.com';
 
 
 
