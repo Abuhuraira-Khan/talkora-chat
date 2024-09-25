@@ -94,6 +94,13 @@ export const login = async (req, res) => {
         if(!isPasswordCorrect) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
+        if (user.isEmailVerified == false) {
+            const verificationRes = await verification(req, res);
+            // Return success message
+            if (verificationRes === 200) {
+                return res.status(403).json({ message: 'verify your email' });
+            }
+        }
         const token = jwt.sign({ email: user.email, id: user._id }, process.env.JWT_SECRET_KEY,{expiresIn: '90d'});
         res.cookie('u_token', token, {
             httpOnly: false,
@@ -139,6 +146,22 @@ export const verify = async (req, res) => {
         return res.status(500).json({ message: 'Something went wrong' });
     }
 
+}
+
+// cheack is valid username
+export const checkUsername = async (req, res) => {
+    const { username } = req.body;
+    console.log(username)
+    try {
+        if(!username) return res.status(400).json({ message: 'Please enter all fields' });
+        const existingUserByUsername = await User.findOne({ username });
+        if (existingUserByUsername) {
+            return res.status(400).json({ message: 'Username already exists' });
+        }
+        return res.status(200).json({ message: 'Username available' });
+    } catch (error) {
+        return res.status(500).json({ message: 'Something went wrong' });
+    }
 }
 
 // verify me

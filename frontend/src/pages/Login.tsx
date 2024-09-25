@@ -38,7 +38,11 @@ export default function Login() {
       setAuth(true)
       setIsVerify(true)
       navigate('/')
-    }else{
+    }
+    else if(res.status===403){
+      navigate('/verify?email='+loginData.email)
+    }
+    else{
       toast.error(data.message)
     }
   }

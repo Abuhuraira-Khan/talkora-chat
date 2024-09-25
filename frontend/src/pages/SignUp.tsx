@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 // import { configDotenv } from "dotenv";
 import { useNavigate,Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -19,8 +19,10 @@ export default function SignUp() {
     fullname: ''
   })
 
-  // form validate state
+  const deBounceTime = useRef<any | null>(null)
+  const [usernameAvailable, setUsernameAvailable] = useState(false)
 
+  // form validate state
   const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
     setSignUpData({
       ...signUpData,
@@ -49,6 +51,39 @@ export default function SignUp() {
     }
   }
 
+  // handleUserNameChange
+  const handleUserNameChange =async (e:React.ChangeEvent<HTMLInputElement>) => {
+    setSignUpData({
+      ...signUpData,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  useEffect(() => {
+    deBounceTime.current = setTimeout(async() => {
+      const res = await fetch(`${apiUrl}/auth/check-username`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: signUpData.username
+        })
+      })
+      const data = await res.json();
+      if(res.status===200){
+        setUsernameAvailable(true)
+      }else{
+        setUsernameAvailable(false)
+      }
+    }, 500)
+        
+    return () => {
+      clearTimeout(deBounceTime.current)
+    }
+  }, [signUpData.username])
+
   return (
     <div className="flex justify-center items-center h-screen bg-gradient-to-r from-blue-200 to-purple-300">
       <ToastContainer />
@@ -59,7 +94,7 @@ export default function SignUp() {
             <input onChange={handleChange} type="email" name="email" className={`w-full px-4 py-2  ${signUpData.email && !signUpData.email.includes('@'&&'.com') ? 'border-red-500 border' : 'border'} ${signUpData.email && signUpData.email.includes('@'&&'.com') ? 'border-green-500 border' : ''} outline-none rounded`} placeholder="Email" />
           </div>
           <div>
-            <input onChange={handleChange} name="username" type="text" className="w-full px-4 py-2 border rounded" placeholder="Username" />
+            <input onChange={handleUserNameChange} name="username" type="text" className={`w-full px-4 py-2 border rounded ${usernameAvailable ? 'border-green-500 border' : 'border'} ${signUpData.username&&!usernameAvailable ? 'border-red-500 border' : ''} outline-none `} placeholder="Username" />
           </div>
           <div>
             <input onChange={handleChange}  name="fullname" type="text" className={`w-full px-4 py-2  ${signUpData.fullname? 'border-green-500 border' : 'border'} outline-none rounded`} placeholder="Full Name" />
