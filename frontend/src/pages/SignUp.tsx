@@ -71,7 +71,6 @@ export default function SignUp() {
           username: signUpData.username
         })
       })
-      const data = await res.json();
       if(res.status===200){
         setUsernameAvailable(true)
       }else{

@@ -7,7 +7,7 @@ import { MyProfileContext,apiUrl } from "../context/Context";
 import { IoIosSend } from "react-icons/io";
 import { useGetConversations, useListenMessages } from "../context/SocketContext";
 // import icon
-import {FaEdit, FaTrash, FaShareAlt } from 'react-icons/fa';
+import { FaTrash } from 'react-icons/fa';
 import { RxDotsVertical } from "react-icons/rx";
 import { BsGenderTrans } from "react-icons/bs";
 import { FaAngleRight } from "react-icons/fa6";
@@ -76,7 +76,6 @@ export default function ChatWindow() {
         },
         body: JSON.stringify({ conversationId: id, content: text })
       });
-      const result = await res.json();
       if (res.status === 200) {
         setText('');
         if (messageInputRef.current) {
@@ -260,7 +259,7 @@ interface IConversationDetailsProps{
 // Conversation Details
 const ConversationDetails:React.FC<IConversationDetailsProps> = ({closeTab, id,conversationId})=>{
 
-  const {myProfile,setMyProfile} = useContext<any>(MyProfileContext);
+  const {myProfile} = useContext<any>(MyProfileContext);
   const navigate = useNavigate();
 
   const avatarInputRef = useRef<HTMLInputElement>(null);

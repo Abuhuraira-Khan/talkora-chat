@@ -29,7 +29,6 @@ const StoryView = () => {
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
-  const [cleanScreen,setCleanScreen] = useState(false);
   const [stopAutoProgress, setStopAutoProgress] = useState(false);
 
   const storyRef = useRef<HTMLDivElement>(null);
@@ -272,7 +271,7 @@ console.log('dtim',dtim)
         </p> */}
 
         {/* more features */}
-        <div className={`text-2xl absolute z-30 ${cleanScreen?'hidden':''} flex gap-2 items-center z-10 top-4 right-4`}>
+        <div className={`text-2xl absolute flex gap-2 items-center z-10 top-4 right-4`}>
           {/* story time */}
         <p className='text-white text-base'>
         {storyTime.split(' ').length>2?storyTime.split(' ')[1]:storyTime.split(' ')[0]}{storyTime.split(' ').length>2?storyTime.split(' ')[2][0]:storyTime.split(' ')[1][0]}
@@ -297,14 +296,14 @@ console.log('dtim',dtim)
         </button>
       </div>
        {/* profile and others*/}
-        <div className={`absolute w-10 z-30 h-10 top-4 left-4 flex ${cleanScreen?'hidden':''} items-center space-x-2`}>
+        <div className={`absolute w-10 z-30 h-10 top-4 left-4 flex items-center space-x-2`}>
           <img
             src={user?.userAvatar||"/images/unknow user.jpg"}
             alt={user?.userFullname}
             className=" w-full h-full object-cover rounded-full border bg-black"
           />
         </div>
-        <div className={`absolute z-30 bottom-4 w-56 left-1/2 flex gap-1 ${cleanScreen?'hidden':''} transform -translate-x-1/2`}>
+        <div className={`absolute z-30 bottom-4 w-56 left-1/2 flex gap-1  transform -translate-x-1/2`}>
         {moreStories.map((_, i) => (
           <div key={i} className="w-full h-1 bg-gray-600 relative">
            <div

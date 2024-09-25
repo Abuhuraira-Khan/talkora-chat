@@ -19,9 +19,14 @@ configDotenv();
 const port = process.env.PORT || 5000;
 
 // MongoDB connection
-await mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("Database connected"))
-    .catch(err => console.log(err));
+(async () => {
+    try {
+        await mongoose.connect(process.env.MONGO_URI);
+        console.log("Database connected");
+    } catch (err) {
+        console.error("Error connecting to database:", err);
+    }
+})();
 
 // Middleware
 app.use(express.json({ limit: '70mb', extended: true }));

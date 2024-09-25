@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 // import components
 import Login from './pages/Login';
-import ChatList from './pages/ChatList';
+// import ChatList from './pages/ChatList';
 import ChatWindow from './pages/ChatWindow';
 import VideoCall from './pages/VideoCall';
 import GroupVideoCall from './pages/GroupVideoCall';

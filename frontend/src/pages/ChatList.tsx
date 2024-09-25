@@ -8,7 +8,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { FaAngleRight } from "react-icons/fa6";
 import { RxCross2 } from "react-icons/rx";
 import { IoIosAddCircle, IoIosCloseCircle } from 'react-icons/io';
-import { FiUsers, FiRadio } from 'react-icons/fi';
+import { FiUsers } from 'react-icons/fi';
 // import { RiChatPrivateLine } from "react-icons/ri";
 import { useNavigate,useSearchParams,useParams } from "react-router-dom";
 import { useSocketContext } from "../context/SocketContext";

@@ -20,7 +20,7 @@ export default function Login() {
     })
   }
 
-  const { auth,setAuth } = useContext(AuthContext)
+  const {setAuth } = useContext(AuthContext)
   const [isVerify, setIsVerify] = useState(false)
 
   const handleSubmit = async (e:React.FormEvent<HTMLFormElement>) => {
