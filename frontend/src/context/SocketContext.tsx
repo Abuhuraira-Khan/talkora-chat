@@ -11,7 +11,7 @@ export const useSocketContext = () => {
 export const SocketContextProvider = ({ children }: any) => {
 
     const [socket, setSocket] = useState<any>();
-    const [onlineUsers, setOnlineUsers] = useState<any>();
+    const [onlineUsers, setOnlineUsers] = useState<any[]>();
     const {auth} = useContext(AuthContext);
     const {myProfile} = useContext(MyProfileContext);
 
@@ -19,7 +19,7 @@ export const SocketContextProvider = ({ children }: any) => {
 
     useEffect(() => {
         if(auth){
-            const newSocket = io("https://talkora-chat-api.vercel.app",{
+            const newSocket = io("https://talkora-chat.onrender.com",{
                 query: {
                     userId: myProfile?._id
                 }
