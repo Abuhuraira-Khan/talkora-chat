@@ -19,7 +19,7 @@ export const SocketContextProvider = ({ children }: any) => {
 
     useEffect(() => {
         if(auth){
-            const newSocket = io("https://talkora-chat.onrender.com",{
+            const newSocket = io("https://talkora-chat-api-production.up.railway.app",{
                 query: {
                     userId: myProfile?._id
                 }

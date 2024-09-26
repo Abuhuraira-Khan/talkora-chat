@@ -9,7 +9,7 @@ import { cloudinaryUploadProfile } from "../config/cloudinary-upload.js";
 configDotenv();
 
 export const getMyProfile = async (req, res) => {
-  const token = req.cookies.u_token;
+  const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
 
   try {
     // Verify token and extract user ID
@@ -94,7 +94,7 @@ export const getMyProfile = async (req, res) => {
 
 // update profile
 export const updateProfile = async (req, res) => {
-  const token = req.cookies.u_token;
+  const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
   const profile = req.body;
 
   try {
@@ -119,7 +119,7 @@ export const updateProfile = async (req, res) => {
 export const getReceiverProfile = async (req, res) => {
   const { id } = req.params;
 
-  const token = req.cookies.u_token;
+  const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
   const tokentData = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
   try {
@@ -186,7 +186,7 @@ export const getReceiverProfile = async (req, res) => {
 // get peoples
 export const getPeoples = async (req, res) => {
   const query = req.query.s;
-  const token = req.cookies.u_token;
+  const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
   const tokentData = jwt.verify(token, process.env.JWT_SECRET_KEY);
   try {
     if (!query) {
@@ -235,7 +235,7 @@ export const getPeoples = async (req, res) => {
 
 // get chat user
 export const getChatUser = async (req, res) => {
-  const token = req.cookies.u_token;
+  const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
   const tokenData = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
   try {
@@ -309,7 +309,7 @@ export const getChatUser = async (req, res) => {
 // get chat user list for create group
 export const getChatUserListForCreateGroup = async (req, res) => {
   const query = req.query.s;
-  const token = req.cookies.u_token;
+  const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
   const tokenData = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
   try {
@@ -399,7 +399,7 @@ export const getChatUserListForCreateGroup = async (req, res) => {
 // get user
 export const getUser = async (req, res) => {
   const { id } = req.params;
-  const token = req.cookies.u_token;
+  const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
   const tokenData = jwt.verify(token, process.env.JWT_SECRET_KEY);
   try {
     const user = await User.findById(id);
@@ -492,7 +492,7 @@ export const getConversationProfile = async (req, res) => {
 export const getNewConversationMembers = async (req, res) => {
   const { conversationId } = req.params;
   const query = req.query.s;
-  const token = req.cookies.u_token;
+  const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
 
   try {
     const tokenData = jwt.verify(token, process.env.JWT_SECRET_KEY);

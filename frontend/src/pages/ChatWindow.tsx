@@ -3,7 +3,7 @@ import {  toast } from "react-toastify";
 import ChatList from "./ChatList";
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { Conversation } from "../context/types";
-import { MyProfileContext,apiUrl } from "../context/Context";
+import { MyProfileContext,apiUrl,TokenContext } from "../context/Context";
 import { IoIosSend } from "react-icons/io";
 import { useGetConversations, useListenMessages } from "../context/SocketContext";
 // import icon
@@ -32,6 +32,7 @@ interface ConversationProfile {
 }
 
 export default function ChatWindow() {
+  const token = useContext(TokenContext);
   const { id } = useParams();
   const navigator = useNavigate();
   const [searchParams] = useSearchParams();
@@ -42,6 +43,7 @@ export default function ChatWindow() {
 
   const [text, setText] = useState('');
   const [isConversationDetails, setIsConversationDetails] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [conversation, setConversation] = useState<Conversation | null>(null);
   const [receiver, setReceiver] = useState<ConversationProfile | null>(null);
   const [showMenu, setShowMenu] = useState<{ [key: string]: boolean }>({});
@@ -52,9 +54,9 @@ export default function ChatWindow() {
     if (newWith) {
       const res = await fetch(`${apiUrl}/chat/create-chat`, {
         method: 'POST',
-        credentials: 'include',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({ receiver: newWith, text: text })
       });
@@ -70,9 +72,9 @@ export default function ChatWindow() {
     if (id) {
       const res = await fetch(`${apiUrl}/message/send-message`, {
         method: 'POST',
-        credentials: 'include',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({ conversationId: id, content: text })
       });
@@ -88,11 +90,15 @@ export default function ChatWindow() {
   useEffect(() => {
     (async () => {
       if (id) {
+        setIsLoading(true);
         const res = await fetch(`${apiUrl}/chat/get-chat/${id}`, {
-          credentials: 'include'
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         });
         const result = await res.json();
         setConversation(result.data);
+        setIsLoading(false);
       }
     })();
   }, [id]);
@@ -101,11 +107,15 @@ export default function ChatWindow() {
   useEffect(() => {
     (async () => {
       if (id || newWith) {
+        setIsLoading(true);
         const res = await fetch(`${apiUrl}/users/receiver-profile/${id || newWith}`, {
-          credentials: 'include'
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         });
         const result = await res.json();
         setReceiver(result.data);
+        setIsLoading(false);
       }
     })();
     return () => {
@@ -130,12 +140,11 @@ export default function ChatWindow() {
   // };
 
   const handleDelete = async (messageId: string) => {
-    console.log(messageId)
     const res = await fetch(`${apiUrl}/message/delete-message`, {
       method: 'POST',
-      credentials: 'include',
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify({messageId: messageId})
     });
@@ -160,6 +169,8 @@ export default function ChatWindow() {
       <ChatList closeTab={() => setIsConversationDetails(false)} />
       {id || newWith ? (
         <main className={`flex-1 inline-block md:${id||newWith?'':'hidden'} overflow-hidden flex flex-col relative`}>
+          {isLoading ? <LoaderBlur /> :(
+            <>
           {/* conversation details */}
           {isConversationDetails && <ConversationDetails closeTab={() => setIsConversationDetails(false)} id={receiver?._id} conversationId={id} />}
             {/* header */}
@@ -244,6 +255,9 @@ export default function ChatWindow() {
               <IoIosSend />
             </button>
           </footer>
+          </>
+          )
+          }
         </main>
       ) : null}
     </div>
@@ -258,6 +272,7 @@ interface IConversationDetailsProps{
 
 // Conversation Details
 const ConversationDetails:React.FC<IConversationDetailsProps> = ({closeTab, id,conversationId})=>{
+  const token = useContext(TokenContext);
 
   const {myProfile} = useContext<any>(MyProfileContext);
   const navigate = useNavigate();
@@ -284,7 +299,9 @@ const ConversationDetails:React.FC<IConversationDetailsProps> = ({closeTab, id,c
   useEffect(() => {
     (async () => {
       const red = await fetch(`${apiUrl}/users/get-conversation-profile/${id}/${conversationId}`,{
-        credentials:'include'
+        headers:{
+          'Authorization': `Bearer ${token}`
+        }
       });
       const result = await red.json();
       setConversationProfileDetails(result.data);
@@ -299,8 +316,9 @@ const ConversationDetails:React.FC<IConversationDetailsProps> = ({closeTab, id,c
   useEffect(() => {
     setTimeout(async() => {
       const res = await fetch(`${apiUrl}/users/get-new-conversation-members/${conversationId}?s=${searchTerm}`,{
-        credentials:'include'
-      });
+        headers:{
+          'Authorization': `Bearer ${token}`
+        }});
       const result = await res.json();
       setSearchNewMembers(result.data);
     }, 500);
@@ -311,9 +329,9 @@ const ConversationDetails:React.FC<IConversationDetailsProps> = ({closeTab, id,c
     setIsNewMembersAddedL(id);
     const res = await fetch(`${apiUrl}/chat/add-new-members`,{
       method:'POST',
-      credentials:'include',
       headers:{
-        'Content-Type':'application/json'
+        'Content-Type':'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body:JSON.stringify({
         newMembersId:[id],
@@ -332,11 +350,12 @@ const ConversationDetails:React.FC<IConversationDetailsProps> = ({closeTab, id,c
     if(seeMembers){
     (async () => {
       const res = await fetch(`${apiUrl}/chat/get-conversation-members/${conversationId}`,{
-        credentials:'include'
-      });
+        headers:{
+          'Authorization': `Bearer ${token}`
+        }});
       const result = await res.json();
       setAllMembers(result.data);
-      setThisAdmin(result?.data?.some((el:any)=>el.isAdmin.includes(myProfile?._id)));
+      setThisAdmin(result?.data?.some((el:any)=>el?.isAdmin==myProfile?._id));
     })();
   }
   },[seeMembers,isNewMembersAdded])
@@ -345,9 +364,9 @@ const ConversationDetails:React.FC<IConversationDetailsProps> = ({closeTab, id,c
   const handleRemoveMember = async (id:string)=>{
     const res = await fetch(`${apiUrl}/chat/remove-members`,{
       method:'POST',
-      credentials:'include',
       headers:{
-        'Content-Type':'application/json'
+        'Content-Type':'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body:JSON.stringify({
         membersId:[id],
@@ -383,9 +402,9 @@ const ConversationDetails:React.FC<IConversationDetailsProps> = ({closeTab, id,c
     setIsProfileEditL(true);
     const res = await fetch(`${apiUrl}/chat/update-group-details/${conversationId}`,{
       method:'POST',
-      credentials:'include',
       headers:{
-        'Content-Type':'application/json'
+        'Content-Type':'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body:JSON.stringify(conversationProfileDetails)
     });
@@ -405,9 +424,9 @@ const ConversationDetails:React.FC<IConversationDetailsProps> = ({closeTab, id,c
   const handleDeleteOrLeaveChat = async ()=>{
     const res = await fetch(`${apiUrl}/chat/delete-or-leave-chat/${conversationId}`,{
       method:'POST',
-      credentials:'include',
       headers:{
-        'Content-Type':'application/json'
+        'Content-Type':'application/json',
+        'Authorization': `Bearer ${token}`
       },
     });
     const result = await res.json();
@@ -423,7 +442,7 @@ const ConversationDetails:React.FC<IConversationDetailsProps> = ({closeTab, id,c
       {/* loader */}
       {isProfileEditL?<LoaderBlur/>:null}
       {/* close buton */}
-      <button onClick={closeTab} className="absolute top-5 px-2 p-1 hover:bg-gray-200 rounded-full right-5 capitalize">close</button>
+      <button onClick={closeTab} className="absolute p-0 top-0 sm:px-2 sm:p-1 hover:bg-gray-200 rounded-full right-0 capitalize">close</button>
       {/* edit button */}
       <button onClick={()=>setIsProfileEdit(!isProfileEdit)} className={`absolute text-xl top-5 px-2 p-1 hover:bg-gray-200 ${conversationProfileDetails?.isGroupChat?'':'hidden'} rounded-full left-5 capitalize`}><AiOutlineEdit/></button>
       <button onClick={handleEditGroupClick} className={`absolute ${isProfileEdit?'':'hidden'} top-5 left-16 capitalize px-1 text-white bg-blue-500 rounded`}>save</button>

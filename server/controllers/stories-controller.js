@@ -13,7 +13,7 @@ configDotenv();
 
 // add stories
 export const addStories = async (req, res) => {
-  const token = req.cookies.u_token;
+  const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
   const storyData = req.body;
   const tokentData = jwt.verify(token, process.env.JWT_SECRET_KEY);
   const file = storyData?.media;
@@ -25,7 +25,6 @@ export const addStories = async (req, res) => {
 
     const fileUrl = await cloudinaryUpload(file, user.username, storyType);
     if(!fileUrl) return res.status(404).json({ message: "File not found" });
-
     const story = {
       userId: user._id,
       username: user.username,
@@ -43,7 +42,8 @@ export const addStories = async (req, res) => {
 
 // get stories by conversations
 export const getStories = async (req, res) => {
-  const token = req.cookies.u_token;
+  const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
+
   
   try {
     const tokenData = jwt.verify(token, process.env.JWT_SECRET_KEY);

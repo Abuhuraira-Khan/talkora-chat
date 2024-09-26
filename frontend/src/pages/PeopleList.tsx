@@ -1,6 +1,6 @@
 import React, { useState, useEffect ,useContext} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MyProfileContext,apiUrl } from '../context/Context';
+import { MyProfileContext,apiUrl,TokenContext } from '../context/Context';
 
 import { FaSearch } from "react-icons/fa";
 
@@ -14,6 +14,7 @@ interface Person {
 
 
 const PeopleListPage: React.FC = () => {
+  const token = useContext(TokenContext);
 
   const navigate = useNavigate();
 
@@ -26,12 +27,13 @@ const PeopleListPage: React.FC = () => {
       const getPeople = async () => {
         try {
           const res = await fetch(`${apiUrl}/users/peoples?s=${search}`, {
-            credentials: 'include',
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
           });
           const result = await res.json();
           setPeople(result.data);
         } catch (error) {
-          console.error('Failed to fetch people:', error);
         }
       };
       

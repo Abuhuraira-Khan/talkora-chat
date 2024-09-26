@@ -1,16 +1,15 @@
 import React, { useEffect, useState,useContext } from 'react';
 import { useSearchParams,useNavigate } from 'react-router-dom';
 import { toast,ToastContainer } from 'react-toastify';
-import { AuthContext,apiUrl } from '../context/Context';
+import { AuthContext,apiUrl,TokenContext } from '../context/Context';
 
 const VerifyLogin = () => {
+  const token = useContext(TokenContext);
 
   const navigator = useNavigate();
 
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email');
-
-  console.log(email)
 
   const [verificationCode, setVerificationCode] = useState('');
   const verifyEmail = email;
@@ -23,9 +22,9 @@ const VerifyLogin = () => {
     // Replace with your API endpoint
     const response = await fetch(`${apiUrl}/auth/verify`, {
       method: 'POST',
-      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
         email: verifyEmail,  // Replace with actual user ID

@@ -1,6 +1,5 @@
 import { useContext } from "react";
 import { OpenSidebarContext, MyProfileContext } from "../context/Context";
-import { useCookies } from "react-cookie";
 import { Link,useNavigate } from "react-router-dom";
 // import { User } from '../context/types';
 // import { IoSettingsOutline } from "react-icons/io5";
@@ -20,7 +19,6 @@ interface OpenSidebarProps {
 const Sidebar = () => {
   const sideBarC = useContext<OpenSidebarProps | null>(OpenSidebarContext);
   const {myProfile} = useContext<any>(MyProfileContext);
-  const [,,removeCookie] = useCookies(['u_token']);
   const navigate = useNavigate();
 
   return (
@@ -88,7 +86,7 @@ const Sidebar = () => {
       </div>
       {/* footer */}
       <div className="capitalize absolute bottom-0 left-0 w-full font-semibold mt-1 border-t-2 border-gray-200 flex flex-col gap-2 p-1">
-        <button onClick={() =>{removeCookie('u_token'); navigate('/login')}} className="bg-red-500 text-white items-center py-2 rounded hover:bg-red-600 flex gap-1 justify-center">Log out <span><FiLogOut size={20} /></span></button>
+        <button onClick={() =>{localStorage.removeItem('token'); navigate('/login')}} className="bg-red-500 text-white items-center py-2 rounded hover:bg-red-600 flex gap-1 justify-center">Log out <span><FiLogOut size={20} /></span></button>
       </div>
     </aside>
   );

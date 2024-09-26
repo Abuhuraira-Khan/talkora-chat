@@ -10,7 +10,7 @@ import { cloudinaryUploadGroup } from "../config/cloudinary-upload.js";
 configDotenv();
 
 export const createConversation = async (req, res) => {
-    const sender = req.cookies.u_token;
+    const sender = req.headers.authorization && req.headers.authorization.split(" ")[1];
     const { receiver, text } = req.body;
 
     const senderData = jwt.verify(sender, process.env.JWT_SECRET_KEY);
@@ -142,7 +142,7 @@ export const getChatList = async (req, res) => {
 
 // create group conversation
 export const createGroup = async (req, res) => {
-    const token = req.cookies.u_token;
+    const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
     const tokenData = jwt.verify(token, process.env.JWT_SECRET_KEY);
     const { groupName, participants } = req.body;
 
@@ -163,7 +163,7 @@ export const createGroup = async (req, res) => {
 
 // add new members in group
 export const addNewMembers = async (req, res) => {
-    const token = req.cookies.u_token;
+    const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
     const { conversationId, newMembersId } = req.body;
 
     try {
@@ -183,9 +183,9 @@ export const addNewMembers = async (req, res) => {
         conversation.participants.push(...newMembersId);
         await conversation.save();
         const returnData = conversation?.participants.map((c) =>c._id);
+        console.log(returnData)
         return res.status(200).json({ data: returnData });
     } catch (error) {
-        console.log(error)
         return res.status(500).json({ error: "Error adding new members" });
     }
 }
@@ -214,7 +214,6 @@ export const getConversationMembers = async (req, res) => {
                 isAdmin: conversation.groupAdmins.includes(member._id)?member._id:null
             }
         });
-
         return res.status(200).json({ data: returnData });
     } catch (error) {
         return res.status(500).json({ error: "Error getting conversation members" });
@@ -224,7 +223,7 @@ export const getConversationMembers = async (req, res) => {
 
 // remove-members
 export const removeMembers = async (req, res) => {
-    const token = req.cookies.u_token;
+    const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
     const { conversationId, membersId } = req.body;
 
     try {
@@ -257,7 +256,7 @@ export const removeMembers = async (req, res) => {
 // update group details
 export const updateGroupDetails = async (req, res) => {
     const {conversationId} = req.params;
-    const token = req.cookies.u_token;
+    const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
     const groupDetails = req.body;
     try {
         const tokenData = jwt.verify(token, process.env.JWT_SECRET_KEY);
@@ -289,7 +288,7 @@ export const updateGroupDetails = async (req, res) => {
 
 // delete-or-leave-chat
 export const deleteOrLeaveChat = async (req, res) => {
-    const token = req.cookies.u_token;
+    const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
     const { conversationId } = req.params;
     try {
         const tokenData = jwt.verify(token, process.env.JWT_SECRET_KEY);

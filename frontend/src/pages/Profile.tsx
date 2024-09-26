@@ -1,11 +1,12 @@
 import React, { useState, useContext } from "react";
-import { MyProfileContext,apiUrl } from "../context/Context";
+import { MyProfileContext,apiUrl,TokenContext } from "../context/Context";
 import { FaArrowLeft } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
 
   const navigate =useNavigate();
+  const token = useContext(TokenContext);
 
   const [isEditing, setIsEditing] = useState(false);
   const { myProfile, setMyProfile } = useContext<any>(MyProfileContext);
@@ -37,15 +38,14 @@ const ProfilePage = () => {
     if(isEditing) {
     const res = await fetch(`${apiUrl}/users/update-profile`, {
       method: "POST",
-      credentials: "include",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify(myProfile),
     });
 
     const result = await res.json();
-    console.log(result.data);
     if (res.status === 200) {
       setMyProfile(result.data);
       setIsEditing(false);

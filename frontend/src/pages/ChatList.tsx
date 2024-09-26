@@ -1,6 +1,6 @@
 import Sidebar from "./Sidebar";
 import React,{ useContext,useEffect,useState,useMemo } from "react";
-import { OpenSidebarContext,MyProfileContext,apiUrl } from "../context/Context";
+import { OpenSidebarContext,MyProfileContext,apiUrl,TokenContext } from "../context/Context";
 // import {User} from '../context/types';
 import { useGetConversations, useListenLastMessages } from "../context/SocketContext";
 import { formatDistanceToNow } from 'date-fns';
@@ -12,6 +12,7 @@ import { FiUsers } from 'react-icons/fi';
 // import { RiChatPrivateLine } from "react-icons/ri";
 import { useNavigate,useSearchParams,useParams } from "react-router-dom";
 import { useSocketContext } from "../context/SocketContext";
+import { LoaderBlur } from "./Loder";
 
 interface SidebarProps {
   openSidebar: boolean,
@@ -21,6 +22,7 @@ interface SidebarProps {
 
 export default React.memo(function ChatList({closeTab}:any) {
 
+  const token = useContext(TokenContext);
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const newWith = searchParams.get('with');
@@ -31,6 +33,7 @@ export default React.memo(function ChatList({closeTab}:any) {
 
   const {myProfile}= useContext<any>(MyProfileContext);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   // online users
   const {onlineUsers} = useSocketContext();
 
@@ -47,11 +50,15 @@ export default React.memo(function ChatList({closeTab}:any) {
   // get stories
   useEffect(() => {
     (async () => {
+      setIsLoading(true);
       const res = await fetch(`${apiUrl}/stories/get-connected-stories`, {
-        credentials: 'include',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       const result = await res.json();
       setStories(result.data||[]);
+      setIsLoading(false);
     })();
   
     return () => {
@@ -62,11 +69,15 @@ export default React.memo(function ChatList({closeTab}:any) {
   // get chat user
   useEffect(() => {
     (async () => {
+      setIsLoading(true);
       const res = await fetch(`${apiUrl}/users/get-chat-user`, {
-        credentials: 'include',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       const result = await res.json();
       setConversation(result.data);
+      setIsLoading(false);
     })();
 
     return () => {
@@ -84,8 +95,10 @@ export default React.memo(function ChatList({closeTab}:any) {
           <button onClick={()=>sideBarC?.setOpenSidebar(!sideBarC.openSidebar)} className="rounded-full bg-gray-100 hover:bg-gray-200 p-2 text-2xl font-bold"><FaAngleRight/></button>
           <h2 onClick={()=>navigate('/')} className="text-xl cursor-pointer font-bold">Chats</h2>
         </div>
+        {isLoading ? <LoaderBlur /> : (
+        <>
         {/* Create New Floating Button */}
-        <div className={`absolute bottom-6 right-4 z-10 transition-all duration-300 ${isDropdownOpen ? "scale-100" : "group-hover:scale-100 scale-0"}`}>
+        <div className={`absolute bottom-6 right-4 z-10 transition-all duration-300 scale-100 ${isDropdownOpen ? "sm:scale-100" : "sm:group-hover:scale-100 sm:scale-0"}`}>
         <div className="relative">
           <button
             className="flex items-center gap-2 px-6 py-3 text-white bg-gradient-to-r from-purple-500 to-blue-500 rounded-full shadow-lg hover:shadow-2xl hover:scale-105 transition-transform duration-300"
@@ -184,13 +197,11 @@ export default React.memo(function ChatList({closeTab}:any) {
             <li className="text-center mt-[10vh]  text-gray-500">You have no chat</li>
           )}
         </ul>
+        </>
+        )
+        }
         </div>
       </aside>
-      {/* <main className="flex-1 p-4">
-        <div className="h-full flex justify-center items-center text-gray-500">
-          Select a chat to start messaging
-        </div>
-      </main> */}
     </div>
   );
 })

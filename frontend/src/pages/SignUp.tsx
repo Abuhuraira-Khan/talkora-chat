@@ -1,14 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 // import { configDotenv } from "dotenv";
 import { useNavigate,Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import { apiUrl } from "../context/Context";
+import { apiUrl,TokenContext } from "../context/Context";
 
 
 // configDotenv();
 
 export default function SignUp() {
+  const token = useContext(TokenContext);
 
   const navigator = useNavigate();
 
@@ -37,14 +38,15 @@ export default function SignUp() {
     e.preventDefault()
     const res = await fetch(`${apiUrl}/auth/signup`, {
       method: 'POST',
-      credentials: 'include',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(signUpData)
     })
     const data = await res.json();
     if(res.status===201){
+      localStorage.setItem('token', data.token)
       navigator('/verify?email='+signUpData.email)
     }else{
       toast.error(data.message)
@@ -63,9 +65,9 @@ export default function SignUp() {
     deBounceTime.current = setTimeout(async() => {
       const res = await fetch(`${apiUrl}/auth/check-username`, {
         method: 'POST',
-        credentials: 'include',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           username: signUpData.username

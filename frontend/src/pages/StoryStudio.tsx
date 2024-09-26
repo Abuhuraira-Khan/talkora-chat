@@ -1,10 +1,11 @@
-import React, { useState, useRef, useCallback, ChangeEvent, MouseEvent, useEffect } from 'react';
+import React, { useState, useRef, useCallback, ChangeEvent, MouseEvent, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LoaderBlur } from './Loder';
 import { toast,ToastContainer } from 'react-toastify';
-import { apiUrl } from '../context/Context';
+import { apiUrl,TokenContext } from '../context/Context';
 
 const StoryEditor = () => {
+  const token = useContext(TokenContext);
 
   const navigate = useNavigate();
 
@@ -112,9 +113,9 @@ const StoryEditor = () => {
         try {
           const res = await fetch(`${apiUrl}/stories/add-story`, {
             method: 'POST',
-            credentials: 'include',
             headers:{
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify({
               media: media,
@@ -127,7 +128,6 @@ const StoryEditor = () => {
           });
     
           const result = await res.json();
-          console.log(result.data)
         if(res.status === 200){
           navigate(`/stories/${result.data.username}/${result.data._id}`);
           setIsUploading(false);
@@ -137,7 +137,6 @@ const StoryEditor = () => {
         }
     
         } catch (error) {
-          console.error("Error while uploading story:", error);
           setIsUploading(false)
         }
       }

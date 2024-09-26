@@ -6,7 +6,7 @@ configDotenv();
 
 export const checkAuth = async (req, res, next) => {
     try {
-        const token = req.cookies.u_token;
+        const token =req.headers.authorization && req.headers.authorization.split(' ')[1];
         if (!token) {
             return res.status(401).json({ authenticate: false, message: 'No token provided' });
         }
@@ -23,6 +23,7 @@ export const checkAuth = async (req, res, next) => {
 
         const user = await User.findOne({ email: verified.email, _id: verified.id });
         if (!user || !user.isEmailVerified) {
+            console.log(user);
             return res.status(401).json({ authenticate: false, message: 'Unauthorized' });
         }
         next();

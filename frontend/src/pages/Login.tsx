@@ -1,11 +1,11 @@
 import React, {  useEffect, useState,useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast,ToastContainer } from "react-toastify";
-import { AuthContext,apiUrl } from '../context/Context';
+import { AuthContext,apiUrl,TokenContext } from '../context/Context';
 
 
 export default function Login() {
-  
+  const token = useContext(TokenContext);
   const navigate = useNavigate()
 
   const [loginData, setLoginData] = useState({
@@ -27,14 +27,15 @@ export default function Login() {
     e.preventDefault()
     const res = await fetch(`${apiUrl}/auth/login`, {
       method: 'POST',
-      credentials: 'include',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(loginData)
     })
     const data = await res.json();
     if(res.status===200){
+      localStorage.setItem('token', data.token)
       setAuth(true)
       setIsVerify(true)
       navigate('/')

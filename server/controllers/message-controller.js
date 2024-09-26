@@ -10,7 +10,7 @@ configDotenv();
 
 export const createMessage = async (req, res) => {
 
-    const sender = req.cookies.u_token;
+    const sender = req.headers.authorization && req.headers.authorization.split(" ")[1];
     const { conversationId, content } = req.body;
 
     const senderData = jwt.verify(sender, process.env.JWT_SECRET_KEY);
@@ -59,7 +59,7 @@ export const getMessages = async (req, res) => {
 // delete message
 export const deleteMessage = async (req, res) => {
     const messageId = req.body.messageId;
-    const token = req.cookies.u_token;
+    const token = req.headers.authorization && req.headers.authorization.split(" ")[1];
     try {
         const tokenData = jwt.verify(token, process.env.JWT_SECRET_KEY);
         const message = await Message.findById(messageId);

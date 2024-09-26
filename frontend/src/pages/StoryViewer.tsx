@@ -1,8 +1,8 @@
-import  { useState, useEffect,useRef } from 'react';
+import  { useState, useEffect,useRef, useContext } from 'react';
 import { useSearchParams,useNavigate,useParams } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import { formatDistanceToNow, subHours } from 'date-fns';
-import { apiUrl } from '../context/Context';
+import { apiUrl,TokenContext } from '../context/Context';
 
 // icon
 import { RxCross1 } from "react-icons/rx";
@@ -14,6 +14,7 @@ import { IoMdLink } from "react-icons/io";
 
 
 const StoryView = () => {
+  const token = useContext(TokenContext);
 
   const [searchParams] = useSearchParams();
   const index = searchParams.get('index') || '0';  
@@ -111,7 +112,9 @@ const StoryView = () => {
     (async ()=>{
       if(storyUsername&&!storyId){
         const res = await fetch(`${apiUrl}/stories/get-story/${storyUsername}`,{
-          credentials: 'include',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         });
         const result = await res.json();
         setStories(result.data.stories);
@@ -129,7 +132,9 @@ const StoryView = () => {
     (async ()=>{
       if(storyUsername && storyId && index){
         const res = await fetch(`${apiUrl}/stories/get-story-by-id/${storyId}`,{
-          credentials: 'include',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         });
         const result = await res.json();
         setStories(result.data.stories);
@@ -198,8 +203,7 @@ const StoryView = () => {
     }
   }
   }, [progress===100]);
-console.log(progress)
-console.log('dtim',dtim)
+
   // handle story features
   const handleMenu = (e: any) => {
     e.stopPropagation();

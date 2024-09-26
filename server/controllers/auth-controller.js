@@ -50,18 +50,9 @@ export const signUp = async (req, res) => {
 
         const verificationRes = await verification(req,res);
 
-        // Set the token as an HTTP-only cookie
-        res.cookie('u_token', token, {
-            path: '/',
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'None',
-            maxAge: 95*24*60*60*1000,
-        });
-
         // Return success message
         if(verificationRes === 200) {
-        return res.status(201).json({ message: 'User created' });
+        return res.status(201).json({ message: 'User created', token: token });
         }
         res.status(500).json({ message: 'Something went wrong' });
     } catch (error) {
@@ -103,14 +94,7 @@ export const login = async (req, res) => {
             }
         }
         const token = jwt.sign({ email: user.email, id: user._id }, process.env.JWT_SECRET_KEY,{expiresIn: '90d'});
-        res.cookie('u_token', token, {
-            path: '/',
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'None',
-            maxAge: 95*24*60*60*1000,
-        });
-        return res.status(200).json({ message: 'Login successful' });
+        return res.status(200).json({ message: 'Login successful', token: token });
     } catch (error) {
         res.status(500).json({ message: 'Something went wrong' });
     }
@@ -137,15 +121,8 @@ export const verify = async (req, res) => {
         await User.updateOne({ email }, { isEmailVerified: true,verificationCode: null });
 
         const token = jwt.sign({ email: user.email, id: user._id }, process.env.JWT_SECRET_KEY);
-        res.cookie('u_token', token, {
-            path: '/',
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'None',
-            maxAge: 95*24*60*60*1000,
-        });
 
-        return res.status(200).json({ message: 'Email verified successfully' });
+        return res.status(200).json({ message: 'Email verified successfully',token: token });
     } catch (error) {
         return res.status(500).json({ message: 'Something went wrong' });
     }

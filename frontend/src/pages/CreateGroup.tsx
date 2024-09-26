@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BsGenderTrans } from "react-icons/bs";
 import { FaArrowLeft } from "react-icons/fa6";
-import { apiUrl } from '../context/Context';
+import { apiUrl,TokenContext } from '../context/Context';
 
 
 interface SelectedUser {
@@ -17,7 +17,7 @@ interface SelectedUser {
 
 
 const NewGroup = () => {
-
+  const token = useContext(TokenContext);
   const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -49,13 +49,12 @@ const NewGroup = () => {
   const handleCreateGroup = async () => {
     setIsGroupNmaeInput(true);
     if(groupName) {
-      console.log('first')
       const res = await fetch(`${apiUrl}/chat/create-group`,{
         method:'POST',
         headers:{
-          'Content-Type':'application/json'
+          'Content-Type':'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        credentials:'include',
         body: JSON.stringify({
           groupName,
           participants
@@ -84,7 +83,9 @@ const NewGroup = () => {
   useEffect(() => {
     setTimeout(async () => {
         const res = await fetch(`${apiUrl}/users/get-users-for-create-group?s=${searchTerm}`,{
-          credentials:'include'
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         });
   
         const result = await res.json();
@@ -101,7 +102,9 @@ const NewGroup = () => {
     (async () => {
       if(isCardVisible) {
         const res = await fetch(`${apiUrl}/users/get-user/${isCardVisible}`,{
-          credentials:'include'
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         });
   
         const result = await res.json();

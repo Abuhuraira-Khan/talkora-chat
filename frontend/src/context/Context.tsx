@@ -1,87 +1,87 @@
-import { createContext,useState,useContext, useEffect } from 'react';
-import { useCookies } from 'react-cookie';
-import { Navigate } from 'react-router-dom';
+import { createContext, useState, useContext, useEffect } from "react";
+import { Navigate } from "react-router-dom";
 
 interface SidebarProps {
-    openSidebar: boolean,
-    setOpenSidebar: (value: boolean) => void;
-  
-  }
+  openSidebar: boolean;
+  setOpenSidebar: (value: boolean) => void;
+}
 
-  interface AuthC {
-    auth: boolean,
-    setAuth: (value: boolean) => void;
-  }
+interface AuthC {
+  auth: boolean;
+  setAuth: (value: boolean) => void;
+}
 
 // apiurl
-export const apiUrl = 'https://talkora-chat.onrender.com';
+export const apiUrl = "https://talkora-chat-api-production.up.railway.app";
 
+export const TokenContext = createContext<any | null>(null);
 
-
-const OpenSidebarContext = createContext<SidebarProps|null>(null); // or any other initial value
+const OpenSidebarContext = createContext<SidebarProps | null>(null); // or any other initial value
 
 export { OpenSidebarContext };
 
-export const AuthContext = createContext<AuthC>({ auth: false, setAuth: () => {} } );
+export const AuthContext = createContext<AuthC>({
+  auth: false,
+  setAuth: () => {},
+});
 
-export const AuthProvider = ({children}: any) => {
+export const AuthProvider = ({ children }: any) => {
+  const tokenL = localStorage.getItem("token");
 
-  const [cookies] = useCookies(['u_token']);
-
-  const [auth,setAuth] = useState(cookies.u_token ? true : false);
-  
+  const [auth, setAuth] = useState(tokenL ? true : false);
 
   return (
-        <AuthContext.Provider value={{auth,setAuth}}>
-            {children}
-        </AuthContext.Provider>
-    )
-}
+    <AuthContext.Provider value={{ auth, setAuth }}>
+      <TokenContext.Provider value={tokenL}>
+        {children}
+        </TokenContext.Provider>
+    </AuthContext.Provider>
+  );
+};
 
-export const ProtectRoute = ({children}: any) => {
-
+export const ProtectRoute = ({ children }: any) => {
   const authC = useContext(AuthContext);
 
-  if(!authC.auth){
-    return <Navigate to='/login' />
+  if (!authC.auth) {
+    return <Navigate to="/login" />;
   }
 
-  return children
-}
+  return children;
+};
 
 // MyProfileContext
 
 export const MyProfileContext = createContext<any>({});
 
-export const MyProfileProvider = ({children}: any) => {
-
+export const MyProfileProvider = ({ children }: any) => {
+  const token = useContext(TokenContext);
   const [myProfile, setMyProfile] = useState<any>({});
-  const {auth,setAuth} = useContext(AuthContext);
+  const { auth, setAuth } = useContext(AuthContext);
 
   useEffect(() => {
-    (async ()=>{
-      if(auth){
-      const res = await fetch(`${apiUrl}/users/my-profile`,{
-        credentials: 'include'
-      });
-      const result = await res.json();
-      setMyProfile(result.data)
-      if(!res.ok){
-        setAuth(false)
+    (async () => {
+      if (auth) {
+        const res = await fetch(`${apiUrl}/users/my-profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const result = await res.json();
+        setMyProfile(result.data);
+        if (!res.ok) {
+          setAuth(false);
+        }
       }
-    }
     })();
-    
-  
+
     return () => {
       setMyProfile(null);
-    }
-  }, [auth])
+    };
+  }, [auth]);
 
   return (
-    <MyProfileContext.Provider value={{myProfile,setMyProfile}}>
+    <MyProfileContext.Provider value={{ myProfile, setMyProfile }}>
       {children}
     </MyProfileContext.Provider>
-  )
-}
-
+  );
+};
