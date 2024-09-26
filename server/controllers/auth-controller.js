@@ -53,7 +53,7 @@ export const signUp = async (req, res) => {
         // Set the token as an HTTP-only cookie
         res.cookie('u_token', token, {
             path: '/',
-            httpOnly: false,
+            httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'None',
             maxAge: 95*24*60*60*1000,
@@ -105,7 +105,7 @@ export const login = async (req, res) => {
         const token = jwt.sign({ email: user.email, id: user._id }, process.env.JWT_SECRET_KEY,{expiresIn: '90d'});
         res.cookie('u_token', token, {
             path: '/',
-            httpOnly: false,
+            httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'None',
             maxAge: 95*24*60*60*1000,
@@ -139,7 +139,7 @@ export const verify = async (req, res) => {
         const token = jwt.sign({ email: user.email, id: user._id }, process.env.JWT_SECRET_KEY);
         res.cookie('u_token', token, {
             path: '/',
-            httpOnly: false,
+            httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'None',
             maxAge: 95*24*60*60*1000,
